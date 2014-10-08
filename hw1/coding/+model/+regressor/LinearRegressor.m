@@ -51,7 +51,7 @@ classdef LinearRegressor < handle
             lastEmp = model.regressor.LinearRegressor.calculateEMP(param, X, y);
             times = 0;
             lastCase = -1;
-            SLOW_DOWN_THRESHOLD = 1;
+            SLOW_DOWN_THRESHOLD = 0.01;
 
             % iteration
             while 1
@@ -76,6 +76,7 @@ classdef LinearRegressor < handle
                     lastCase = 1;
                 % 2. 相較 lastEmp 下降太少 (進步太少)
                 elseif lastEmp - emp < SLOW_DOWN_THRESHOLD
+                    %{
                     % 上次正常，這次變慢
                     if lastCase == 3
                         % 嘗試看看提升 learning rate 會不會變好
@@ -85,7 +86,8 @@ classdef LinearRegressor < handle
                     elseif lastCase == 2 || lastCase == 1
                         break;
                     end
-                    
+                    %}
+                    break;
                     lastCase = 2;
                 % 3. 一切正常
                 else
@@ -96,7 +98,7 @@ classdef LinearRegressor < handle
                 
                 times = times + 1;
             end
-            
+
             % create object
             linearRegressorObj = model.regressor.LinearRegressor(param);
         end
