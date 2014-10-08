@@ -22,9 +22,8 @@ classdef LinearRegressor < handle
     % static methods
 	methods (Static)
         function linearRegressorObj = train (X, y)
-            
             % create object
-            linearRegressorObj = model.regressor.LinearRegressor.leftDivisionTrain(X, y);
+            linearRegressorObj = model.regressor.LinearRegressor.cvxTrain(X, y);
         end
         
         % ¥ª°£ªk Training
@@ -38,42 +37,19 @@ classdef LinearRegressor < handle
             linearRegressorObj = model.regressor.LinearRegressor(param);
         end
         
-        % Gradient Descent Training
-        function linearRegressorObj = gradientDescentTrain (X, y)
+        % CVX Training
+        function linearRegressorObj = cvxTrain (X, y)
         	% initailze variables
             n = size(X, 1); % number of data points
             d = size(X, 2); % number of fetures
             expandX = [ones(n, 1), X]; % add ones column
             param = zeros(d + 1, 1); % initailize param to zero vector
-
-            % prepare for descent
-            learningRate = 0.000005;
-            lastEmp = model.regressor.LinearRegressor.calculateEMP(param, X, y);
-            times = 0;
-            lastCase = -1;
-            SLOW_DOWN_THRESHOLD = 1;
-
-            % iteration
-            while 1
-                % gradient descent
-                sum = 0;
-                for i = 1:n
-                    sum = sum + (y(i) - param' * expandX(i,:)') * expandX(i,:)';
-                end
-                gradient = -2 * sum;
-                newParam = param - learningRate * gradient;
-                
-                % count emperical error
-                emp = model.regressor.LinearRegressor.calculateEMP(newParam, X, y);
-                
-                if norm(gradient) < 10
-                    break;
-                end
-
-                param = newParam;
-                times = times + 1;
-            end
-            times
+            
+            % cvx optimization
+            cvx_begin
+                variable param(d+1)
+                minimize( norm(expandX * param - y))
+            cvx_end
 
             % create object
             linearRegressorObj = model.regressor.LinearRegressor(param);
