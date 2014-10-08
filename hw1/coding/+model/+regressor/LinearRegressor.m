@@ -47,11 +47,11 @@ classdef LinearRegressor < handle
             param = zeros(d + 1, 1); % initailize param to zero vector
 
             % prepare for descent
-            learningRate = 1;
+            learningRate = 0.000005;
             lastEmp = model.regressor.LinearRegressor.calculateEMP(param, X, y);
             times = 0;
             lastCase = -1;
-            SLOW_DOWN_THRESHOLD = 0.1;
+            SLOW_DOWN_THRESHOLD = 1;
 
             % iteration
             while 1
@@ -62,40 +62,18 @@ classdef LinearRegressor < handle
                 end
                 gradient = -2 * sum;
                 newParam = param - learningRate * gradient;
-
+                
                 % count emperical error
                 emp = model.regressor.LinearRegressor.calculateEMP(newParam, X, y);
                 
-                % update variables
-                % 這邊根據 emp 有三種可能狀況
-                % 1. 相較 lastEmp 不降反升或不變 (沒長進)
-                if emp >= lastEmp
-                    % 嘗試看看降低 learning rate 會不會變好
-                    learningRate = learningRate / 10;
-                    
-                    lastCase = 1;
-                % 2. 相較 lastEmp 下降太少 (進步太少)
-                elseif lastEmp - emp < SLOW_DOWN_THRESHOLD
-                    % 上次正常，這次變慢
-                    if lastCase == 3
-                        % 嘗試看看提升 learning rate 會不會變好
-                        learningRate = learningRate * 10;
-                        
-                    % 上次就很慢，這次還是慢，或者上次超過，這次又很慢，可以結束了
-                    elseif lastCase == 2 || lastCase == 1
-                        break;
-                    end
-
-                    lastCase = 2;
-                % 3. 一切正常
-                else
-                    lastEmp = emp;
-                    param = newParam;
-                    lastCase = 3;
+                if norm(gradient) < 10
+                    break;
                 end
-                
+
+                param = newParam;
                 times = times + 1;
             end
+            times
 
             % create object
             linearRegressorObj = model.regressor.LinearRegressor(param);
