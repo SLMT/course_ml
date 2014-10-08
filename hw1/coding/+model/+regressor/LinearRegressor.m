@@ -1,4 +1,3 @@
-%%% the dummy regressor predicts the value by mean value of y
 
 % handle 代表這個 class 是 pass by reference
 classdef LinearRegressor < handle
