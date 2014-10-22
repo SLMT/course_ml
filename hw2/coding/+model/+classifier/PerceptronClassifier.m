@@ -13,6 +13,8 @@ classdef PerceptronClassifier < handle
         end
         
         function predictedValue = predict (obj, X)
+            num = size(X, 1);
+            
             % lifting
             phiX = ones(num, obj.level + 1);
             for i = 1 : obj.level
@@ -25,7 +27,7 @@ classdef PerceptronClassifier < handle
     end
    
     methods (Static)
-        function classifier = train (X, y, liftingLevel)
+        function classifier = train (X, y, liftingLevel, learningRate, phi)
             % initializing variables
             num = size(X, 1);
             
@@ -35,17 +37,13 @@ classdef PerceptronClassifier < handle
                 phiX(:, i+1) = X.^i;
             end
             
-            % adjustable variables
-            learningRate = 0.01;
-            epi = 0.000001;
-            
             % initialize variables for iteration
             %h = [1; 0.9487; -3.3650]; % update this
             h = ones(liftingLevel + 1, 1);
             updateVector = ones(liftingLevel + 1, 1);
             
             % converage
-            while norm(updateVector) > epi
+            while norm(updateVector) > phi
                 % predict
                 predicted = sign(phiX * h);
 
