@@ -1,0 +1,1 @@
+14. 如果 data 有 normal distribution 的現象(畫出來就可以看)，最好可以使用 z-normalization

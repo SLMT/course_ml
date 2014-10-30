@@ -1,0 +1,22 @@
+p.4
+
+- data 出現的可能在某個 distribution 上越亂，能夠得到的 information 會越多
+
+p.5
+
+- H[x] 改成 Hx[p]
+
+- 這個 function 代表的就是你平均會看到的 information 量
+
+p.6
+
+- Entropy 算出來剛好是 encoding 最少需要的 bit 數
+
+p.28
+
+- Precision 是你 predict 是對的之中，有多少是對的
+- Recall 是從對的中，真的有 predict 是對的比率
+
+p.34
+
+- Erse => 測量你的 model 跟最爛的 model (只用 means predict) 之間的錯誤比例
