@@ -2,6 +2,9 @@ import model.classify.DummyClassifier
 
 clear %clear workspace
 
+load data/X.dat
+load data/y.dat
+
 %--- TODO: please import the dataset here ---%
 
 %--- TODO: modify the DummyClassifier to your SoftMarginLinearClassifier ---%
