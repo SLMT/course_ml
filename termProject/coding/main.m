@@ -15,8 +15,9 @@ label = myClassifier.predict(X);
 %%% plot data %%%
 scatter (X(y==1,1),X(y==1,2),'g');
 hold on;
-scatter(X(y==-1,1),X(y==-1,2),'b');
+scatter (X(y==-1,1),X(y==-1,2),'b');
 
 %--- TODO: plot the decision boundary yourself ---%
+
 
 hold off;
