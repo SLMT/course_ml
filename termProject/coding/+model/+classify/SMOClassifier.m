@@ -1,17 +1,27 @@
 classdef SMOClassifier < handle
 
     properties
-        alpha, w, b;
+        alpha, data, labels;
     end
     
     methods
-        function smoClassifierObj = SMOClassifier(alpha, w, b)
+        function smoClassifierObj = SMOClassifier(alpha, data, labels)
             smoClassifierObj.alpha = alpha;
-            smoClassifierObj.w = w;
-            smoClassifierObj.b = b;
+            smoClassifierObj.data = data;
+            smoClassifierObj.labels = labels;
         end
         function predictedLabel = predict (obj, X)
+            dataN = size(obj.data, 1);
+            xN = size(X, 1);
             
+            predictedLabel = zeros(xN, 1);
+            for t = 1 : xN
+                sum = 0;
+                for i = 1 : dataN
+                    sum = obj.labels(i) * obj.alpha(i) * model.classify.KernelMatrix.kernelFunction(obj.data(i, :), X(t, :));
+                end
+                predictedLabel(t) = sign(sum);
+            end
         end
     end
     
@@ -19,12 +29,14 @@ classdef SMOClassifier < handle
         function smoClassifierObj = train (X, y)
             % some constants
             epsilon = 0.00001;
-        	n = size(X, 1);
+            n = size(X, 1);
             d = size(X, 2);
             c = 1 / n;
             km = model.classify.KernelMatrix(X);
-
-            % SMO
+            
+            % =====================
+            % ======== SMO ========
+            % =====================
             a = zeros(n, 1);
             g = ones(n, 1);
 
@@ -58,14 +70,14 @@ classdef SMOClassifier < handle
                 j = tmp(minI);
                 
                 % yigi < yjgj
-                if ygMatrix(i) < ygMatrix(j) + epsilon
+                if ygMatrix(i) <= ygMatrix(j)
                     break;
                 end
                 
                 % Direction search
                 candidate1 = B(i) - yaMatrix(i);
                 candidate2 = yaMatrix(j) - A(j);
-                candidate3 = (ygMatrix(i) - ygMatrix(j)) / (km.get(i,i) + km.get(j, j) - 2 * km.get(i, j));
+                candidate3 = (ygMatrix(i) - ygMatrix(j)) / (km.get(i,i) + km.get(j, j) - (2 * km.get(i, j)));
                 lamda = min([candidate1; candidate2; candidate3]);
                 
                 % update gradient
@@ -83,24 +95,15 @@ classdef SMOClassifier < handle
 
             iteration
             
-            % calculate w, b
-            w = zeros(d, 1);
-            for t = 1 : n
-                if (a(t) > epsilon)
-                    w = w + a(t) * y(t) * X(t, :)';
-                end
-            end
-            
-            b = 0;
-            num = 0;
-            for t = 1 : n
-                if (a(t) > epsilon && a(t) < c - epsilon)
-                    b = b + y(t) - X(t, :) * w;
-                    num = num + 1;
-                end
-            end
-            b = b / num;
-            smoClassifierObj = model.classify.SMOClassifier(a, w, b);
+            % =====================
+            % ==== End of SMO =====
+            % =====================
+            svIndex = a > epsilon;
+            svAlpha = a(svIndex);
+            svData = X(svIndex, :);
+            svLabels = y(svIndex);
+
+            smoClassifierObj = model.classify.SMOClassifier(svAlpha, svData, svLabels);
         end
 	end
 end
