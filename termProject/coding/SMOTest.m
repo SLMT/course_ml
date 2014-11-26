@@ -10,7 +10,7 @@ load data/X.dat
 load data/y.dat
 
 % training
-myClassifier = SMOClassifier.train(X,y);
+myClassifier = SMOClassifier.train(X, y, 1);
 label = myClassifier.predict(X);
 
 % get arguments

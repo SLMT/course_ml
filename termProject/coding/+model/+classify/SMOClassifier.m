@@ -27,14 +27,14 @@ classdef SMOClassifier < handle
     end
     
     methods (Static)
-        function smoClassifierObj = train (X, y)
+        function smoClassifierObj = train (X, y, isCacheOn)
             % some constants
             epsilon = 0.00001;
             n = size(X, 1);
             d = size(X, 2);
             c = 10;
             tolerance = 1;
-            km = model.classify.KernelMatrix(X);
+            km = model.classify.KernelMatrix(X, isCacheOn);
             
             % =====================
             % ======== SMO ========
@@ -53,7 +53,7 @@ classdef SMOClassifier < handle
                 end
             end
             
-            iteration = 0;
+            % main iteration
             while 1
                 % pre-generate matrix
                 ygMatrix = y .* g;
@@ -91,11 +91,7 @@ classdef SMOClassifier < handle
                 % update coefficients
                 a(i) = a(i) + y(i) * lamda;
                 a(j) = a(j) - y(j) * lamda;
-                
-                iteration = iteration + 1;
             end
-
-            iteration
             
             % =====================
             % ==== End of SMO =====
