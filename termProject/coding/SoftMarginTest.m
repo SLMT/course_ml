@@ -21,13 +21,19 @@ hold on;
 scatter (X(y==-1,1),X(y==-1,2),'b');
 
 % plot support verters
-plot(X(xi > 0.1,1), X(xi > 0.1, 2), 'x');
+plot(X(xi > 0.1,1), X(xi > 0.1, 2), 'kx');
 
 % plot boundary
 lineA = -w(1) / w(2);
-lineB = -b / w(2);
-lineX = linspace(-60, 60);
+lineB = b / w(2);
+lineX = linspace(-60, 20);
 lineY = lineX * lineA + lineB;
-plot(lineX, lineY);
+plot(lineX, lineY, 'k');
+
+lineY = lineY + 1 / w(2);
+plot(lineX, lineY, 'k--');
+
+lineY = lineY - 2 / w(2);
+plot(lineX, lineY, 'k--');
 
 hold off;
