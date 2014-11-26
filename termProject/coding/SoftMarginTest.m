@@ -8,7 +8,7 @@ load data/y.dat
 
 % training
 myClassifier = SoftMarginLinearClassifier.train(X,y);
-%label = myClassifier.predict(X);
+label = myClassifier.predict(X);
 
 % get arguments
 w = myClassifier.w;
@@ -35,5 +35,9 @@ plot(lineX, lineY, 'k--');
 
 lineY = lineY - 2 / w(2);
 plot(lineX, lineY, 'k--');
+
+% show error rate
+errorRate = size(label(label ~= y), 1) / size(label, 1)
+numOfSupportVec = size(myClassifier.xi(myClassifier.xi > 0.000001), 1)
 
 hold off;

@@ -1,7 +1,5 @@
 classdef SoftMarginLinearClassifier < handle
-    %SOFTMARGINLINEARCLASSI Summary of this class goes here
-    %   Detailed explanation goes here
-    
+
     properties
         w, b, xi;
     end
@@ -13,7 +11,8 @@ classdef SoftMarginLinearClassifier < handle
             smlClassifierObj.xi = xi;
         end
         function predictedLabel = predict (obj, X)
-            % TODO: Fill this method
+            y = X * obj.w - obj.b;
+            predictedLabel = sign(y);
         end
     end
     
