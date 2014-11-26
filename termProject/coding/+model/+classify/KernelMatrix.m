@@ -19,10 +19,10 @@ classdef KernelMatrix < handle
         end
         
         function value = kernelFunction (obj, i, j)
-            sida = 1;
+            gama = 0.001;
             a = obj.X(i);
             b = obj.X(j);
-            % value = exp(-(norm(a - b, 2) ^ 2) / (2 * (sida ^ 2)));
+            % value = exp(-gama * (norm(a - b, 2) ^ 2));
             value = a' * b;
         end
     end

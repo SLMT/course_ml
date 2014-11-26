@@ -1,21 +1,26 @@
 classdef SMOClassifier < handle
 
     properties
-        vecA;
+        alpha, w, b;
     end
     
     methods
-        function smoClassifierObj = SMOClassifier(vecA)
-            smoClassifierObj.vecA = vecA;
+        function smoClassifierObj = SMOClassifier(alpha, w, b)
+            smoClassifierObj.alpha = alpha;
+            smoClassifierObj.w = w;
+            smoClassifierObj.b = b;
         end
         function predictedLabel = predict (obj, X)
-            % TODO: Fill this method
+            
         end
     end
     
     methods (Static)
         function smoClassifierObj = train (X, y)
+            % some constants
+            epsilon = 0.00001;
         	n = size(X, 1);
+            d = size(X, 2);
             c = 1 / n;
             km = model.classify.KernelMatrix(X);
 
@@ -53,7 +58,7 @@ classdef SMOClassifier < handle
                 j = tmp(minI);
                 
                 % yigi < yjgj
-                if ygMatrix(i) < ygMatrix(j) + 0.00001
+                if ygMatrix(i) < ygMatrix(j) + epsilon
                     break;
                 end
                 
@@ -77,7 +82,25 @@ classdef SMOClassifier < handle
             end
 
             iteration
-            smoClassifierObj = model.classify.SMOClassifier(a);
+            
+            % calculate w, b
+            w = zeros(d, 1);
+            for t = 1 : n
+                if (a(t) > epsilon)
+                    w = w + a(t) * y(t) * X(t, :)';
+                end
+            end
+            
+            b = 0;
+            num = 0;
+            for t = 1 : n
+                if (a(t) > epsilon && a(t) < c - epsilon)
+                    b = b + y(t) - X(t, :) * w;
+                    num = num + 1;
+                end
+            end
+            b = b / num;
+            smoClassifierObj = model.classify.SMOClassifier(a, w, b);
         end
 	end
 end
