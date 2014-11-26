@@ -22,7 +22,7 @@ classdef KernelMatrix < handle
     methods (Static)
         function value = kernelFunction (a, b)
             % Gaussian Radial Basis Function
-            gama = 0.0001;
+            gama = 0.001;
             value = exp(-gama * (norm((a - b)', 2) ^ 2));
             
             % Linear Kernel

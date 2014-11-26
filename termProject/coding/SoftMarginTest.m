@@ -2,6 +2,9 @@ import model.classify.SoftMarginLinearClassifier
 
 clear %clear workspace
 
+% some constants
+epsilon = 0.000001;
+
 % import data set
 load data/X.dat
 load data/y.dat
@@ -21,7 +24,7 @@ hold on;
 scatter (X(y==-1,1),X(y==-1,2),'b');
 
 % plot support verters
-plot(X(xi > 0.1,1), X(xi > 0.1, 2), 'kx');
+plot(X(xi > epsilon,1), X(xi > epsilon, 2), 'kx');
 
 % plot boundary
 lineA = -w(1) / w(2);
@@ -38,6 +41,6 @@ plot(lineX, lineY, 'k--');
 
 % show error rate
 errorRate = size(label(label ~= y), 1) / size(label, 1)
-numOfSupportVec = size(myClassifier.xi(myClassifier.xi > 0.000001), 1)
+numOfSupportVec = size(myClassifier.xi(myClassifier.xi > epsilon), 1)
 
 hold off;

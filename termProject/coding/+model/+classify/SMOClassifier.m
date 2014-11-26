@@ -1,18 +1,28 @@
 classdef SMOClassifier < handle
 
     properties
-        alpha, w, b;
+        alpha, data, label, bias;
     end
     
     methods
-        function smoClassifierObj = SMOClassifier(alpha, w, b)
+        function smoClassifierObj = SMOClassifier(alpha, data, label, bias)
             smoClassifierObj.alpha = alpha;
-            smoClassifierObj.w = w;
-            smoClassifierObj.b = b;
+            smoClassifierObj.data = data;
+            smoClassifierObj.label = label;
+            smoClassifierObj.bias = bias;
         end
         function predictedLabel = predict (obj, X)
-            y = X * obj.w - obj.b;
-            predictedLabel = sign(y);
+            dataN = size(obj.data, 1);
+            xN = size(X, 1);
+            
+            predictedLabel = zeros(xN, 1);
+            for t = 1 : xN
+                sum = 0;
+                for i = 1 : dataN
+                    sum = sum + obj.alpha(i) * obj.label(i) * model.classify.KernelMatrix.kernelFunction(obj.data(i, :), X(t, :));
+                end
+                predictedLabel(t) = sign(sum + obj.bias);
+            end
         end
     end
     
@@ -22,7 +32,8 @@ classdef SMOClassifier < handle
             epsilon = 0.00001;
             n = size(X, 1);
             d = size(X, 2);
-            c = 1;
+            c = 10;
+            tolerance = 1;
             km = model.classify.KernelMatrix(X);
             
             % =====================
@@ -61,7 +72,7 @@ classdef SMOClassifier < handle
                 j = tmp(minI);
                 
                 % yigi < yjgj
-                if ygMatrix(i) <= ygMatrix(j)
+                if ygMatrix(i) <= ygMatrix(j) + tolerance
                     break;
                 end
                 
@@ -89,26 +100,13 @@ classdef SMOClassifier < handle
             % =====================
             % ==== End of SMO =====
             % =====================
+            svIndex = a > epsilon;
+            svAlpha = a(svIndex);
+            svData = X(svIndex, :);
+            svLabels = y(svIndex);
+            ron = y(i) * g(i);
             
-            % calculate w, b
-            optW = zeros(d, 1);
-            for t = 1 : n
-                if (a(t) > epsilon)
-                    optW = optW + a(t) * y(t) * X(t, :)';
-                end
-            end
-            
-            optB = 0;
-            num = 0;
-            for t = 1 : n
-                if (a(t) > epsilon && a(t) < c - epsilon)
-                    optB = optB + y(t) - X(t, :) * optW;
-                    num = num + 1;
-                end
-            end
-            optB = optB / num;
-            
-            smoClassifierObj = model.classify.SMOClassifier(a, optW, optB);
+            smoClassifierObj = model.classify.SMOClassifier(svAlpha, svData, svLabels, ron);
         end
 	end
 end
