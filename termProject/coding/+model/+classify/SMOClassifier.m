@@ -1,27 +1,18 @@
 classdef SMOClassifier < handle
 
     properties
-        alpha, data, labels;
+        alpha, w, b;
     end
     
     methods
-        function smoClassifierObj = SMOClassifier(alpha, data, labels)
+        function smoClassifierObj = SMOClassifier(alpha, w, b)
             smoClassifierObj.alpha = alpha;
-            smoClassifierObj.data = data;
-            smoClassifierObj.labels = labels;
+            smoClassifierObj.w = w;
+            smoClassifierObj.b = b;
         end
         function predictedLabel = predict (obj, X)
-            dataN = size(obj.data, 1);
-            xN = size(X, 1);
-            
-            predictedLabel = zeros(xN, 1);
-            for t = 1 : xN
-                sum = 0;
-                for i = 1 : dataN
-                    sum = obj.labels(i) * obj.alpha(i) * model.classify.KernelMatrix.kernelFunction(obj.data(i, :), X(t, :));
-                end
-                predictedLabel(t) = sign(sum);
-            end
+            y = X * obj.w - obj.b;
+            predictedLabel = sign(y);
         end
     end
     
@@ -31,7 +22,7 @@ classdef SMOClassifier < handle
             epsilon = 0.00001;
             n = size(X, 1);
             d = size(X, 2);
-            c = 1 / n;
+            c = 1;
             km = model.classify.KernelMatrix(X);
             
             % =====================
@@ -98,12 +89,26 @@ classdef SMOClassifier < handle
             % =====================
             % ==== End of SMO =====
             % =====================
-            svIndex = a > epsilon;
-            svAlpha = a(svIndex);
-            svData = X(svIndex, :);
-            svLabels = y(svIndex);
-
-            smoClassifierObj = model.classify.SMOClassifier(svAlpha, svData, svLabels);
+            
+            % calculate w, b
+            optW = zeros(d, 1);
+            for t = 1 : n
+                if (a(t) > epsilon)
+                    optW = optW + a(t) * y(t) * X(t, :)';
+                end
+            end
+            
+            optB = 0;
+            num = 0;
+            for t = 1 : n
+                if (a(t) > epsilon && a(t) < c - epsilon)
+                    optB = optB + y(t) - X(t, :) * optW;
+                    num = num + 1;
+                end
+            end
+            optB = optB / num;
+            
+            smoClassifierObj = model.classify.SMOClassifier(a, optW, optB);
         end
 	end
 end
