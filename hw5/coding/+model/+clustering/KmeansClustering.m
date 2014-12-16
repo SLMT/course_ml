@@ -3,13 +3,21 @@
 classdef KmeansClustering
     methods (Static)
         function y = cluster (X, k)
+            % initialize means
+            means = model.clustering.KmeansClustering.initMeans(X, k);
+            
+            % perform k-means
+            [y ~] = model.clustering.KmeansClustering.performClustering(X, k, means);
+        end
+        
+        % pick initial means using k-means++ algorithm
+        function means = initMeans (X, k)
             % initialize variables
             m = size(X, 1);
             n = size(X, 2);
             means = zeros(k, n);
-            groups = zeros(m, 1);
             
-            % initialize means (k-means++)
+            % k-means++ algorithm
             weights = ones(m, 1);
             for newMeanIndex = 1 : k
                 % update mean point
@@ -35,6 +43,13 @@ classdef KmeansClustering
                     end
                 end
             end
+        end
+        
+        % perform k-means clustering
+        function [y means] = performClustering(X, k, means)
+            % initialize variables
+            m = size(X, 1);
+            groups = zeros(m, 1);
             
             % k-means algorithm
             change = 1;
