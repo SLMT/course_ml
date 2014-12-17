@@ -2,12 +2,12 @@
 % Written by SLMT
 classdef KmeansClustering
     methods (Static)
-        function y = cluster (X, k)
+        function Y = cluster (X, k)
             % initialize means
             means = model.clustering.KmeansClustering.initMeans(X, k);
             
             % perform k-means
-            [y, ~] = model.clustering.KmeansClustering.performClustering(X, k, means);
+            [Y, ~] = model.clustering.KmeansClustering.performClustering(X, k, means);
         end
         
         % pick initial means using k-means++ algorithm
@@ -46,7 +46,7 @@ classdef KmeansClustering
         end
         
         % perform k-means clustering
-        function [y, means] = performClustering(X, k, means)
+        function [Y, means] = performClustering(X, k, means)
             % initialize variables
             m = size(X, 1);
             groups = zeros(m, 1);
@@ -88,9 +88,9 @@ classdef KmeansClustering
             end
 
             % generate labels
-            y = zeros(m, k);
+            Y = zeros(m, k);
             for dataIndex = 1 : m
-                y(dataIndex, groups(dataIndex)) = 1;
+                Y(dataIndex, groups(dataIndex)) = 1;
             end
         end
     end
