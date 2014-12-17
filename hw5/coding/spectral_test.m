@@ -3,7 +3,7 @@ clear all;
 
 load data.dat
 
-cfg = containers.Map('similarity', 'eBall');
+cfg = containers.Map('similarity', 'Gaussain');
 
 y = model.clustering.SpectralClustering.cluster(data, 2, cfg);
 
