@@ -21,12 +21,35 @@ for i = 1 : k
     X(startI:endI, 2) = down + (up - down) * rand(1, n);
 end
 
-% k-means
+% === Bad Init Means ===
+
+% init means
 means(1, :) = X(randsample(1:n, 1), :);
 means(2, :) = X(randsample(n + 1 : 2 * n, 1), :);
-[y finalMeans] = model.clustering.KmeansClustering.performClustering(X, 2, means);
+
+% k-means
+[y, finalMeans] = model.clustering.KmeansClustering.performClustering(X, 2, means);
 
 % plot
+subplot(1, 2, 1);
+
+group1 = X(y(:, 1) == 1, :);
+group2 = X(y(:, 2) == 1, :);
+plot(group1(:, 1), group1(:, 2), '.g', group2(:, 1), group2(:, 2), '.r', means(:, 1), means(:, 2), 'bo', finalMeans(:, 1), finalMeans(:, 2), 'mo');
+axis([0, 6, 1, 8]);
+
+% === Good Init Means ===
+
+% init means
+means(1, :) = X(randsample(n + 1 : 2 * n, 1), :);
+means(2, :) = X(randsample(2 * n + 1 : 3 * n, 1), :);
+
+% k-means
+[y, finalMeans] = model.clustering.KmeansClustering.performClustering(X, 2, means);
+
+% plot
+subplot(1, 2, 2);
+
 group1 = X(y(:, 1) == 1, :);
 group2 = X(y(:, 2) == 1, :);
 plot(group1(:, 1), group1(:, 2), '.g', group2(:, 1), group2(:, 2), '.r', means(:, 1), means(:, 2), 'bo', finalMeans(:, 1), finalMeans(:, 2), 'mo');

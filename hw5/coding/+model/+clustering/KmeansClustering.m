@@ -7,7 +7,7 @@ classdef KmeansClustering
             means = model.clustering.KmeansClustering.initMeans(X, k);
             
             % perform k-means
-            [y ~] = model.clustering.KmeansClustering.performClustering(X, k, means);
+            [y, ~] = model.clustering.KmeansClustering.performClustering(X, k, means);
         end
         
         % pick initial means using k-means++ algorithm
@@ -46,7 +46,7 @@ classdef KmeansClustering
         end
         
         % perform k-means clustering
-        function [y means] = performClustering(X, k, means)
+        function [y, means] = performClustering(X, k, means)
             % initialize variables
             m = size(X, 1);
             groups = zeros(m, 1);
@@ -82,8 +82,8 @@ classdef KmeansClustering
                 
                 % update means accroding to new groups
                 for meanIndex = 1 : k
-                    groupData = X(groups == meanIndex);
-                    means(meanIndex) = sum(groupData) / size(groupData, 1);
+                    groupData = X(groups == meanIndex, :);
+                    means(meanIndex, :) = mean(groupData);
                 end
             end
 
