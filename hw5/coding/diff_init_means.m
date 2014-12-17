@@ -3,6 +3,8 @@ n = 100;
 k = 3;
 X = zeros(n * k, 2);
 
+% === Generate Data Set ===
+
 % define ranges
 range = zeros(k, 4);
 range(1, :) = [1 2 2 4.5];
