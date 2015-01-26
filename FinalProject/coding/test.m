@@ -1,34 +1,38 @@
 import model.classify.MLFinalClassifier
 
-clear %clear workspace
+clear; close; clc;
 
-% import data set
+%% import data set
 load data/X.mat
 load data/y.mat
 load data/Xtest.mat
 load data/ytest.mat
 
-% Z-Normalization
+%% Z-Normalization
 n = size(X, 1);
-X_mean = repmat( mean(X), [n, 1] );
-X_std =repmat( std(X), [n, 1] );
-X = (X - X_mean) ./ X_std;
+ntest = size(Xtest, 1);
+Xmean = mean(X);
+Xstd = std(X);
+X = (X - repmat(Xmean,[n,1])) ./ repmat(Xstd,[n,1]); %Repmat for Dimension agreeement
+Xtest = (Xtest - repmat(Xmean,[ntest,1])) ./ repmat(Xstd,[ntest,1]);
 
-% get labeled data
+%% get labeled data
 labeled_x = X(y ~= 0, :);
 labeled_y = y(y ~= 0);
 
-% LDA
+%% LDA
 w = LDA(labeled_x, labeled_y);
 lda_X = [ones(n,1) X] * w';
 
 test_n = size(Xtest, 1);
 lda_X_test =  [ones(test_n,1) Xtest] * w';
 
-% training
+%% Training
 myClassifier = MLFinalClassifier.train(lda_X, y);
+
+%% Make prediction
 label = myClassifier.predict(lda_X_test);
 
-% show error rate
-accuracy = 1 - size(label(label ~= ytest), 1) / size(label, 1)
-
+%% show error rate
+accuracy = 1 - size(label(label ~= ytest), 1) / size(label, 1);
+fprintf( 'Accuracy : %.2f%%\n', accuracy*100 );
