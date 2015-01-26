@@ -1,12 +1,14 @@
 classdef MLFinalClassifier
     
     properties
-        training_X;
+        training_normalized_X;
 		training_LDA_W;
 		training_y;
 		training_n;
 		training_X_Mean;
 		training_X_Std;
+        
+        % Hyperparameters
 		gamma_K = 10;
 		gamma_S = 10;
 		lambda = 1;
@@ -14,12 +16,23 @@ classdef MLFinalClassifier
     end
     
     methods
-        function obj = MLFinalClassifier(X, y, Xmean, Xstd)
-            obj.training_X = X;
+        function obj = MLFinalClassifier(X, y)
             obj.training_y = y;
 			obj.training_n = size(X,1);
-			obj.training_X_Mean = Xmean;
-			obj.training_X_Std = Xstd;
+            
+            % Z-Normalization
+            Xmean = mean(X);
+			Xstd = std(X);
+			obj.training_normalized_X = model.classify.MLFinalClassifier.zNormalize( X, Xmean, Xstd );
+            obj.training_X_Mean = Xmean;
+            obj.training_X_Std = Xstd;
+            
+            % get labeled data
+            labeled_x = obj.training_normalized_X(y ~= 0, :);
+            labeled_y = y(y ~= 0);
+
+            % LDA
+            obj.training_LDA_W = LDA(labeled_x, labeled_y);
 		end
         
         function y = predict(obj, X)
@@ -30,9 +43,12 @@ classdef MLFinalClassifier
 			X = model.classify.MLFinalClassifier.zNormalize( X, obj.training_X_Mean, obj.training_X_Std );
 			
             % CAT X behind obj.training_X
-            longX = [ obj.training_X ; X ];
+            longX = [ obj.training_normalized_X ; X ];
             longY = [ obj.training_y; zeros(predict_n,1) ];
             long_n = obj.training_n + predict_n;
+            
+            % Mapping to LDA_w
+            longX = [ ones(long_n, 1), longX] * obj.training_LDA_W';
             
             % Compute K (Gaussian Kernel)
             K = model.classify.MLFinalClassifier.getGaussianKernel( longX, obj.gamma_K );
@@ -51,10 +67,7 @@ classdef MLFinalClassifier
     methods (Static)
         function classifierObj = train(X, y)
             % Call Constructor
-			Xmean = mean(X);
-			Xstd = std(X);
-			normalizedX = model.classify.MLFinalClassifier.zNormalize( X, Xmean, Xstd );
-            classifierObj = model.classify.MLFinalClassifier(normalizedX, y, Xmean, Xstd);
+            classifierObj = model.classify.MLFinalClassifier(X, y);
 		end
 		
 		[ normalizedX ] = zNormalize( X, Xmean, Xstd )
