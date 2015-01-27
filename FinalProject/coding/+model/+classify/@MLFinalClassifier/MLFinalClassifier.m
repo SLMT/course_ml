@@ -48,8 +48,10 @@ classdef MLFinalClassifier
                     w(:,i) = 0;
                 end
             end
-            longX = [ ones(long_n, 1), longX] * w';
+            %longX = [ ones(long_n, 1), longX] * w';
             
+			longX = longX( :, 1:3 );
+			
             % Compute K (Gaussian Kernel)
             K = model.classify.MLFinalClassifier.getGaussianKernel( longX, obj.gamma_K );
             
