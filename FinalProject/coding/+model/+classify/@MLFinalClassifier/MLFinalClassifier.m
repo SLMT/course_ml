@@ -5,6 +5,9 @@ classdef MLFinalClassifier
 		training_y;
 		training_n;
         
+        % Messages
+        slient = true;
+        
         % Hyperparameters
 		gamma_K = 10;
 		gamma_S = 10;
@@ -54,7 +57,7 @@ classdef MLFinalClassifier
 			S = model.classify.MLFinalClassifier.getGaussianKernel( longX, obj.gamma_S );
 			
 			% Predicting using cvx and LapRLS
-			y = model.classify.MLFinalClassifier.cvxLapRLS( longY, K, S, obj.miu, obj.lambda, false );
+			y = model.classify.MLFinalClassifier.cvxLapRLS( longY, K, S, obj.miu, obj.lambda, obj.slient );
 			
             y = sign(y);
             y = y(obj.training_n + 1 : long_n);
@@ -65,6 +68,17 @@ classdef MLFinalClassifier
         function classifierObj = train(X, y)
             % Call Constructor
             classifierObj = model.classify.MLFinalClassifier(X, y);
+		end
+        
+        function classifierObj = trainWithParameters(X, y, gamma_K, gamma_S, lambda, miu)
+            % Call Constructor
+            classifierObj = model.classify.MLFinalClassifier(X, y);
+            
+            % Set hyperparameters
+            classifierObj.gamma_K = gamma_K;
+            classifierObj.gamma_S = gamma_S;
+            classifierObj.lambda = lambda;
+            classifierObj.miu = miu;
 		end
 		
 		[ normalizedX ] = zNormalize( X, Xmean, Xstd )
