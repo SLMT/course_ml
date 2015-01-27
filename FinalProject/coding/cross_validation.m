@@ -9,8 +9,8 @@ load data/y.mat
 %% Hyperparameter Sets
 gammaK_set = [100];
 gammaS_set = [100];
-lambda_set =  [0.1];
-miu_set =  [0.001];
+lambda_set =  [0.01 0.1 1];
+miu_set =  [0.01 0.1 1];
 
 %% Find semi-labeled data
 % Split data set into labeled and unlabeled
@@ -18,11 +18,11 @@ labeled_X = X(y ~= 0, :);
 labeled_y = y(y ~= 0);
 unlabeled_X = X(y == 0, :);
 
-% Assume all unlabeled data are semi-labeled data
-is_semi_labeled = ones(size(unlabeled_X, 1), 1);
+% Construct voting matrix
+votes = zeros(size(unlabeled_X, 1), 2);
 
 % Run all combinations
-fprintf( 'Start to find semi-labeled data\n');
+fprintf( 'Start to vote. Trying all combination...\n');
 lastY = 0;
 for gammaK = gammaK_set
 	for gammaS = gammaS_set
@@ -32,23 +32,33 @@ for gammaK = gammaK_set
                 tmpClassifier = MLFinalClassifier.trainWithParameters(labeled_X, labeled_y, gammaK, gammaS, lambda, miu);
                 predict_y = tmpClassifier.predict(unlabeled_X);
                 
-                % Find semi-labeled data
-                if (lastY ~= 0)
-                    is_semi_labeled(is_semi_labeled == 1 & lastY ~= predict_y) = 0;
-                end
-                lastY = predict_y;
+                % Vote
+                votes(predict_y == 1, 1) = votes(predict_y == 1, 1) + 1;
+                votes(predict_y == -1, 2) = votes(predict_y == -1, 2) + 1;
             end
         end
 	end
 end
 
-%% Make semi-labeled data to labeled data
-fprintf( 'Find out %d semi-labeled data\n', size(is_semi_labeled(is_semi_labeled == 1), 1));
-labeled_X = [labeled_X; unlabeled_X(is_semi_labeled == 1, :)];
-labeled_y = [labeled_y; lastY(is_semi_labeled == 1)];
+%% Decide unlabeled data's labels
+fprintf( 'Voting finished. Counting votes...\n');
+total_vote = votes(1, 1) + votes(1, 2);
+good_vote = total_vote * 0.8;
+
+unlabeled_n = size(unlabeled_X, 1);
+unlabeled_y = zeros(unlabeled_n, 1);
+unlabeled_y(votes(:, 1) > good_vote) = 1;
+unlabeled_y(votes(:, 2) > good_vote) = -1;
+
+% Show results
+fprintf( 'Label %d data as 1, %d data as -1, %d data are still unlabeled.\n', size(unlabeled_y(unlabeled_y == 1), 1), size(unlabeled_y(unlabeled_y == -1), 1), size(unlabeled_y(unlabeled_y == 0), 1));
+
+%% Make unlabeled data to labeled data
+labeled_X = [labeled_X; unlabeled_X(unlabeled_y ~= 0, :)];
+labeled_y = [labeled_y; unlabeled_y(unlabeled_y ~= 0, :)];
 labeled_n = size(labeled_X, 1);
 
-unlabeled_X = unlabeled_X(is_semi_labeled == 0, :);
+unlabeled_X = unlabeled_X(unlabeled_y == 0, :);
 unlabeled_n = size(unlabeled_X, 1);
 unlabeled_y = zeros(unlabeled_n, 1);
 
@@ -59,6 +69,7 @@ labeled_folds_index = mod(randsample(labeled_n, labeled_n), foldsNum);
 unlabeled_folds_index = mod(randsample(unlabeled_n, unlabeled_n), foldsNum);
 
 % Run all combinations
+fprintf( 'Start cross validation\n');
 for gammaK = gammaK_set
 	for gammaS = gammaS_set
         for lambda = lambda_set
@@ -82,7 +93,6 @@ for gammaK = gammaK_set
                     total = size(testing_y(testing_y ~= 0), 1);
                     accuracy = accuracy + currect / total;
                 end
-                
                 
                 % Show accuracy
                 accuracy = accuracy / foldsNum;

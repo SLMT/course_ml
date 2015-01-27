@@ -10,9 +10,9 @@ classdef MLFinalClassifier
         
         % Hyperparameters
 		gamma_K = 100;
-		gamma_S = 30;
-		lambda = 0.01;
-		miu = 0.01;
+		gamma_S = 100;
+		lambda = 0.1;
+		miu = 0.1;
         lda_mapping_threshold = 1;
     end
     
@@ -40,16 +40,8 @@ classdef MLFinalClassifier
             % get labeled data
             labeled_x = longX(longY ~= 0, :);
             labeled_y = longY(longY ~= 0);
-
-            % LDA
-            w = model.classify.MLFinalClassifier.LDA(labeled_x, labeled_y);
-            for i = 1 : feture_size + 1
-                if norm(w(:,i)) <= obj.lda_mapping_threshold
-                    w(:,i) = 0;
-                end
-            end
-            %longX = [ ones(long_n, 1), longX] * w';
             
+            % Feture selection
 			longX = longX( :, 1:3 );
 			
             % Compute K (Gaussian Kernel)
@@ -59,7 +51,7 @@ classdef MLFinalClassifier
 			S = model.classify.MLFinalClassifier.getGaussianKernel( longX, obj.gamma_S );
 			
 			% Predicting using cvx and LapRLS
-			y = model.classify.MLFinalClassifier.cvxLapRLS( longY, K, S, obj.miu, obj.lambda, obj.slient );
+			y = model.classify.MLFinalClassifier.cvxLapSVM( longY, K, S, obj.miu, obj.lambda, true );
 			
             y = sign(y);
             y = y(obj.training_n + 1 : long_n);
@@ -68,9 +60,11 @@ classdef MLFinalClassifier
     
     methods (Static)
         function classifierObj = train(X, y)
-            % Call Constructor
-            classifierObj = model.classify.MLFinalClassifier(X, y);
-		end
+            [new_X new_y] = model.classify.MLFinalClassifier.preLabelData(X, y);
+            
+            %% Call Constructor
+            classifierObj = model.classify.MLFinalClassifier(new_X, new_y);
+        end
         
         function classifierObj = trainWithParameters(X, y, gamma_K, gamma_S, lambda, miu)
             % Call Constructor
@@ -86,7 +80,9 @@ classdef MLFinalClassifier
 		[ normalizedX ] = zNormalize( X, Xmean, Xstd )
 		[ K ] = getGaussianKernel( X, gamma )
 		[ y_predicted ] = cvxLapRLS( y, K, S, miu, lambda, silent )
-		[ x_LDA_W ] = LDA(Input,Target,Priors);
+        [ y_predicted ] = cvxLapSVM( y, K, S, miu, lambda, silent )
+		[ x_LDA_W ] = LDA(Input,Target,Priors)
+        [new_X new_y] = preLabelData(X, y)
     end
     
 end

@@ -16,4 +16,4 @@ label = myClassifier.predict(Xtest);
 
 %% show error rate
 accuracy = 1 - size(label(label ~= ytest), 1) / size(label, 1);
-fprintf( 'Accuracy : %.2f%%\n', accuracy*100 );
+fprintf( 'Testing Accuracy : %.2f%%\n', accuracy*100 );
