@@ -7,10 +7,10 @@ load data/X.mat
 load data/y.mat
 
 %% Hyperparameter Sets
-gammaK_set = [100];
-gammaS_set = [100];
-lambda_set =  [0.01 0.1 1];
-miu_set =  [0.01 0.1 1];
+gammaK_set = [25 50 100];
+gammaS_set = [25 50 100];
+lambda_set =  [0.1];
+miu_set =  [0.1];
 
 %% Find semi-labeled data
 % Split data set into labeled and unlabeled
@@ -43,12 +43,12 @@ end
 %% Decide unlabeled data's labels
 fprintf( 'Voting finished. Counting votes...\n');
 total_vote = votes(1, 1) + votes(1, 2);
-good_vote = total_vote * 0.8;
+good_vote = total_vote;
 
 unlabeled_n = size(unlabeled_X, 1);
 unlabeled_y = zeros(unlabeled_n, 1);
-unlabeled_y(votes(:, 1) > good_vote) = 1;
-unlabeled_y(votes(:, 2) > good_vote) = -1;
+unlabeled_y(votes(:, 1) >= good_vote) = 1;
+unlabeled_y(votes(:, 2) >= good_vote) = -1;
 
 % Show results
 fprintf( 'Label %d data as 1, %d data as -1, %d data are still unlabeled.\n', size(unlabeled_y(unlabeled_y == 1), 1), size(unlabeled_y(unlabeled_y == -1), 1), size(unlabeled_y(unlabeled_y == 0), 1));

@@ -11,8 +11,8 @@ classdef MLFinalClassifier
         slient = true;
         
         % Hyperparameters
-		gamma_K = 100;
-		gamma_S = 100;
+		gamma_K = 50;
+		gamma_S = 25;
 		lambda = 0.1;
 		miu = 0.1;
         lda_mapping_threshold = 1;
@@ -59,10 +59,10 @@ classdef MLFinalClassifier
     methods (Static)
         function classifierObj = train(X, y)
             %% Hyperparameter Sets
-            gammaK_set = [100];
-            gammaS_set = [100];
-            lambda_set =  [0.01 0.1 1];
-            miu_set =  [0.01 0.1 1];
+            gammaK_set = [25 50 100];
+            gammaS_set = [25 50 100];
+            lambda_set =  [0.1];
+            miu_set =  [0.1];
 
             % Feture selection
             X = X( :, 1:3 );
