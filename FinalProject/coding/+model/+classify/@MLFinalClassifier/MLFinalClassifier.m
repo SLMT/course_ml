@@ -9,10 +9,10 @@ classdef MLFinalClassifier
         slient = true;
         
         % Hyperparameters
-		gamma_K = 10;
-		gamma_S = 10;
-		lambda = 1;
-		miu = 1;
+		gamma_K = 100;
+		gamma_S = 30;
+		lambda = 0.01;
+		miu = 0.01;
         lda_mapping_threshold = 1;
     end
     
@@ -42,7 +42,7 @@ classdef MLFinalClassifier
             labeled_y = longY(longY ~= 0);
 
             % LDA
-            w = LDA(labeled_x, labeled_y);
+            w = model.classify.MLFinalClassifier.LDA(labeled_x, labeled_y);
             for i = 1 : feture_size + 1
                 if norm(w(:,i)) <= obj.lda_mapping_threshold
                     w(:,i) = 0;
