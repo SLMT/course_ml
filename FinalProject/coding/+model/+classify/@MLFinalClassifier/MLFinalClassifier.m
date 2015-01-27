@@ -6,10 +6,11 @@ classdef MLFinalClassifier
 		training_n;
         
         % Hyperparameters
-		gamma_K = 100;
-		gamma_S = 100;
-		lambda = 5;
+		gamma_K = 10;
+		gamma_S = 10;
+		lambda = 1;
 		miu = 1;
+        lda_mapping_threshold = 1;
     end
     
     methods
@@ -21,7 +22,7 @@ classdef MLFinalClassifier
         
         function y = predict(obj, X)
             % Define some constants
-            predict_n = size(X, 1);
+            [predict_n, feture_size] = size(X);
 
             % CAT X behind obj.training_X
             longX = [ obj.training_X ; X ];
@@ -39,6 +40,11 @@ classdef MLFinalClassifier
 
             % LDA
             w = LDA(labeled_x, labeled_y);
+            for i = 1 : feture_size + 1
+                if norm(w(:,i)) <= obj.lda_mapping_threshold
+                    w(:,i) = 0;
+                end
+            end
             longX = [ ones(long_n, 1), longX] * w';
             
             % Compute K (Gaussian Kernel)
